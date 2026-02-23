@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Pulse — ZYROX Intelligence Dashboard</title>
+  <meta name="description"
+    content="Real-time AI news aggregator. Latest articles from Ben's Bites, The AI Rundown, and Reddit — curated daily by ZYROX." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+  <!-- ═══════════════════════════════════════════ ICON SIDEBAR ═════════════ -->
+  <aside class="sidebar" id="sidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <div class="logo-mark">ZX</div>
+      <div class="logo-wordmark">ZYROX</div>
+    </div>
+
+    <!-- Navigation (icon-only, tooltips on hover) -->
+    <nav class="sidebar-nav">
+      <button class="nav-item active" id="nav-feed" onclick="switchTab('feed')" title="Today's Feed"
+        aria-label="Today's Feed">
+        🔥
+        <span class="nav-badge" id="feed-badge">0</span>
+      </button>
+
+      <button class="nav-item" id="nav-saved" onclick="switchTab('saved')" title="Saved Articles"
+        aria-label="Saved Articles">
+        🔖
+        <span class="nav-badge hidden" id="saved-badge-icon">0</span>
+      </button>
+    </nav>
+
+    <!-- Footer actions -->
+    <div class="sidebar-footer">
+      <button class="refresh-btn" id="refresh-btn" onclick="triggerRefresh()" title="Refresh Feed"
+        aria-label="Refresh articles">
+        <span class="refresh-icon" id="refresh-icon">↻</span>
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- ═══════════════════════════════════════════ MAIN CONTENT ════════════ -->
+  <main class="main">
+
+    <!-- ── Topbar ──────────────────────────────────────────────────────── -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-eyebrow">ZYROX · AI INTELLIGENCE</div>
+        <h1 class="topbar-title" id="page-title">
+          Today's <span class="accent">Feed</span>
+        </h1>
+        <div class="topbar-subtitle" id="page-subtitle">Loading latest AI intelligence...</div>
+      </div>
+
+      <div class="stats-pills">
+        <div class="stat-pill" id="stat-total">
+          <span class="stat-number" id="stat-total-num">—</span>
+          <span class="stat-label">Total</span>
+        </div>
+        <div class="stat-pill lime" id="stat-today">
+          <span class="stat-number" id="stat-today-num">—</span>
+          <span class="stat-label">Today</span>
+        </div>
+        <div class="stat-pill" id="stat-saved">
+          <span class="stat-number" id="stat-saved-num">—</span>
+          <span class="stat-label">Saved</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Source Strip ─────────────────────────────────────────────────── -->
+    <div class="source-strip" id="source-strip">
+      <div class="source-card">
+        <span class="source-dot" style="background:#E8A838;"></span>
+        <div class="source-info">
+          <div class="source-name">Ben's Bites</div>
+          <div class="source-count" id="count-bensbites">—</div>
+        </div>
+        <div class="source-status ok" id="status-bensbites">●</div>
+      </div>
+      <div class="source-card">
+        <span class="source-dot" style="background:#9B87F5;"></span>
+        <div class="source-info">
+          <div class="source-name">The Rundown</div>
+          <div class="source-count" id="count-therundown">—</div>
+        </div>
+        <div class="source-status ok" id="status-therundown">●</div>
+      </div>
+      <div class="source-card">
+        <span class="source-dot" style="background:#E05A3A;"></span>
+        <div class="source-info">
+          <div class="source-name">Reddit AI</div>
+          <div class="source-count" id="count-reddit">—</div>
+        </div>
+        <div class="source-status ok" id="status-reddit">●</div>
+      </div>
+      <div class="source-card" style="flex: 0.6;">
+        <div class="source-info" style="width:100%;">
+          <div class="source-name">Last Sync</div>
+          <div class="source-count" style="font-size:11px; font-family: var(--font-mono); color: var(--text-secondary);"
+            id="last-run-label">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Filter Bar ───────────────────────────────────────────────────── -->
+    <div class="filter-bar" id="filter-bar">
+      <div class="filter-chips">
+        <button class="filter-chip active" data-source="all" onclick="applyFilter('all')" id="filter-all">All</button>
+        <button class="filter-chip" data-source="bensbites" onclick="applyFilter('bensbites')"
+          id="filter-bensbites">Ben's Bites</button>
+        <button class="filter-chip" data-source="therundown" onclick="applyFilter('therundown')"
+          id="filter-therundown">The Rundown</button>
+        <button class="filter-chip" data-source="reddit" onclick="applyFilter('reddit')"
+          id="filter-reddit">Reddit</button>
+      </div>
+      <div class="search-wrap">
+        <input type="text" class="search-input" id="search-input" placeholder="Search articles..."
+          oninput="applySearch()" aria-label="Search articles" />
+        <span class="search-icon">⌕</span>
+      </div>
+    </div>
+
+    <!-- ── Divider ──────────────────────────────────────────────────────── -->
+    <div class="section-divider">
+      <span class="section-divider-label" id="feed-label">Latest · 24H</span>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <!-- ── Article Grid ─────────────────────────────────────────────────── -->
+    <div class="articles-grid" id="articles-grid">
+      <!-- Skeleton loaders -->
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+    </div>
+
+    <!-- ── Empty State ──────────────────────────────────────────────────── -->
+    <div class="empty-state hidden" id="empty-state">
+      <div class="empty-icon">📭</div>
+      <div class="empty-title">No articles found</div>
+      <div class="empty-subtitle" id="empty-subtitle">No new AI articles in the last 24h. Check back later or refresh.
+      </div>
+      <button class="empty-btn" onclick="triggerRefresh()">↻ Refresh Now</button>
+    </div>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════ ARTICLE MODAL ════════════ -->
+  <div class="modal-overlay hidden" id="modal-overlay" onclick="closeModal(event)">
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+
+      <div class="modal-header">
+        <div class="modal-source-badge" id="modal-source"></div>
+        <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+      </div>
+
+      <div class="modal-img-wrap hidden" id="modal-img-wrap">
+        <img class="modal-img" id="modal-img" alt="" loading="lazy" />
+      </div>
+
+      <div class="modal-accent-bar"></div>
+
+      <h2 class="modal-title" id="modal-title"></h2>
+
+      <div class="modal-meta">
+        <span class="modal-author" id="modal-author"></span>
+        <span>·</span>
+        <span id="modal-date"></span>
+      </div>
+
+      <p class="modal-summary" id="modal-summary"></p>
+
+      <div class="modal-tags" id="modal-tags"></div>
+
+      <div class="modal-divider"></div>
+
+      <div class="modal-actions">
+        <a class="modal-btn primary" id="modal-read-btn" href="#" target="_blank" rel="noopener noreferrer">
+          Read Article ↗
+        </a>
+        <button class="modal-btn secondary" id="modal-save-btn" onclick="toggleSaveFromModal()">
+          🔖 Save
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ TOASTS ══════════════════ -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
