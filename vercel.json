@@ -18,7 +18,12 @@
             "dest": "/api/unsave.py"
         },
         {
-            "handle": "filesystem"
+            "src": "/styles.css",
+            "dest": "/dashboard/styles.css"
+        },
+        {
+            "src": "/app.js",
+            "dest": "/dashboard/app.js"
         },
         {
             "src": "/(.*)",
