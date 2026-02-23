@@ -488,10 +488,22 @@ async function triggerRefresh() {
     icon.classList.add('spinning');
     btn.disabled = true;
 
-    showToast('Scraping latest AI articles...', 'info');
+    showToast('Scraping latest AI articles — this takes ~40s…', 'info');
+
+    // Progress nudge so the user knows it's still working
+    const nudge = setTimeout(() => {
+        if (State.isRefreshing) showToast('Still scraping… almost done ⚡', 'info');
+    }, 20000);
+
+    // 90-second timeout via AbortController
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 90000);
 
     try {
-        const result = await API.get('/api/refresh');
+        const resp = await fetch('/api/refresh', { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!resp.ok) throw new Error(`/api/refresh → ${resp.status}`);
+        const result = await resp.json();
         const newCount = result.store?.new_articles ?? 0;
 
         showToast(
@@ -503,9 +515,14 @@ async function triggerRefresh() {
 
         await loadData();
     } catch (err) {
+        clearTimeout(timeoutId);
         console.error('Refresh error:', err);
-        showToast('Refresh failed — check scraper deps', 'error');
+        const msg = err.name === 'AbortError'
+            ? 'Scraper timed out — try again in a moment'
+            : `Refresh failed: ${err.message}`;
+        showToast(msg, 'error');
     } finally {
+        clearTimeout(nudge);
         icon.classList.remove('spinning');
         btn.disabled = false;
         State.isRefreshing = false;
