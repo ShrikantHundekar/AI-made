@@ -1,0 +1,28 @@
+{
+    "version": 2,
+    "buildCommand": "pip install -r requirements.txt",
+    "outputDirectory": "dashboard",
+    "functions": {
+        "api/*.py": {
+            "runtime": "python3.12"
+        }
+    },
+    "routes": [
+        {
+            "src": "/api/(.*)",
+            "dest": "/api/$1"
+        },
+        {
+            "src": "/(.*\\.(css|js|png|ico|svg|woff2?))",
+            "dest": "/dashboard/$1"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/dashboard/index.html"
+        }
+    ],
+    "env": {
+        "SUPABASE_URL": "@supabase_url",
+        "SUPABASE_ANON_KEY": "@supabase_anon_key"
+    }
+}
